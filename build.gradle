@@ -1,0 +1,58 @@
+buildscript {
+
+  ext {
+    springBootVersion = '2.0.3.RELEASE'
+  }
+
+  repositories {
+    maven { url "https://binrepo.target.com/artifactory/platform" }
+    maven { url "https://binrepo.target.com/artifactory/jcenter" }
+    maven { url "https://binrepo.target.com/artifactory/gradle" }
+    maven { url "https://binrepo.target.com/artifactory/maven-central" }
+    jcenter()
+    mavenCentral()
+    maven {
+      url "https://plugins.gradle.org/m2/"
+    }
+  }
+  dependencies {
+    classpath "com.target.platform:platform-connector-gradle:1.1.4"
+  }
+}
+
+apply plugin: "com.target.platform.connector.spring-boot"
+
+
+configurations.all {
+  exclude group: "ch.qos.logback"
+
+  resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+    if (details.requested.name == 'log4j') {
+      details.useTarget "org.apache.logging.log4j:log4j-slf4j-impl:2.9.1"
+    }
+    if (details.requested.name == 'commons-logging') {
+      details.useTarget "org.apache.logging.log4j:log4j-slf4j-impl:2.9.1"
+    }
+  }
+}
+
+
+
+mainClassName = "com.target.nridataindex.Main"
+
+version = "0.0.1"
+
+distTar.version = ""
+
+dependencies {
+  implementation 'org.springframework.boot:spring-boot-starter-batch'
+  implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+  implementation 'org.elasticsearch.client:transport:6.4.3'
+  implementation 'org.springframework.boot:spring-boot-starter-web'
+  implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.0.0'
+  runtimeOnly 'org.springframework.boot:spring-boot-devtools'
+  compile group: 'org.postgresql', name: 'postgresql', version: '9.4-1201-jdbc41'
+  runtimeOnly 'mysql:mysql-connector-java'
+  testImplementation 'org.springframework.boot:spring-boot-starter-test'
+  testImplementation 'org.springframework.batch:spring-batch-test'
+}
